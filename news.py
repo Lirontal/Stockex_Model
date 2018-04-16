@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import datetime
-import pickle
+import pickle # object for serialization
 import requests
 
 FNAME = "snp500_formatted.txt"
