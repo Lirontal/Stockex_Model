@@ -2,9 +2,8 @@ import bulbea as bb
 from pprint import pprint as pp
 import json
 import quandl
+quandl.ApiConfig.api_key = "3JsqccnL2kPvfJ2ekA-a"
 class StockHandler:
-    def __init__(self):
-        quandl.ApiConfig.api_key = "3JsqccnL2kPvfJ2ekA-a"
     def __openStock(self, symbol, source = 'WIKI'):
         self.stock = bb.Share(source = 'WIKI', ticker = symbol)
 
