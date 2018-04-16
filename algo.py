@@ -9,6 +9,7 @@ class Algorithm:
         b = int(budget)
         #TODO: acquire all stock symbols
         symbols = ['GOOGL', 'AAPL']
+
         for s in symbols:
 
         data = pandas.DataFrame(index=['GOOGL', 'AAPL'], data={})
