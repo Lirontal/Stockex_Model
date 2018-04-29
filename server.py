@@ -1,6 +1,6 @@
 from pprint import pprint
 import zmq
-from stockDataCollector import StockHandler
+from StockDataCollector import StockHandler
 import json
 import ast
 import time
@@ -20,7 +20,8 @@ class Server:
         self.socket = zmq.Context().socket(zmq.REP)
         self.socket.bind("tcp://127.0.0.1:" + str(port))
         self.algo = Algo()
-        self.stockHandler = StockHandler(StockInfoProvider())
+        self.stockHandler = self.algo.sdc
+        self.sip = self.algo.sip
         self.should_shutdown = False
 
     def __try_communication(self):
@@ -70,24 +71,14 @@ class Server:
     def __easySearch(self, request, entry):
         a = self.algo.getEasySearch(request["budget"])
         jsonObj = {}
-        pprint(a)
-        # for index, value in list(a.items()):
-        #     for i, v in list(value):
-        #         jsonObj[index] =
-        #     # print(str(type(value)))
-        #     q = value.to_dict().popitem()
-        #     pprint(q)
-        #     # pprint((q[1]))
-        #     jsonObj[index] = q[1].popitem()[1]
-        # z = str(json.dumps(jsonObj))
 
         for stock_symbol, info in a.items():
             d = {}
             for info_entry, value in info.to_dict().items():
                 pprint(str(info_entry)+": "+str(value))
                 d[info_entry] = value.popitem()[1]
+            d.update(self.sip.getStockInfo(stock_symbol))
             jsonObj[stock_symbol] = d
-            # print(z)
         return json.dumps(jsonObj)
 
     def __advancedSearch(self, request, entry):
