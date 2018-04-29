@@ -3,7 +3,9 @@ import zmq
 from stockDataCollector import StockHandler
 import json
 import ast
+import time
 from algo import Algorithm as Algo
+from StockInfoProvider import StockInfoProvider
 def parse_dict(param_str):
     return ast.literal_eval(param_str)
 
@@ -18,7 +20,7 @@ class Server:
         self.socket = zmq.Context().socket(zmq.REP)
         self.socket.bind("tcp://127.0.0.1:" + str(port))
         self.algo = Algo()
-        self.stockHandler = StockHandler()
+        self.stockHandler = StockHandler(StockInfoProvider())
         self.should_shutdown = False
 
     def __try_communication(self):
@@ -36,9 +38,11 @@ class Server:
 
                 #  Send reply back to client
                 message = bytes.decode('utf-8')
+                print("msg:" + message)
                 self.reply(json.loads(message))
                 if(self.should_shutdown):
                     raise ShutdownException("server shutdown due to controller command")
+                time.sleep(1)
 
         except Exception as e:
             if (type(e) == ShutdownException):
@@ -49,20 +53,42 @@ class Server:
                 raise
 
     def reply(self, message):
-        self.socket.send_json(self.handle(message))
+        self.socket.send_string(self.handle(message))
 
     def __shouldExit(self):
         self.should_shutdown = True
 
     def __getHistorical(self, request, entry):
         #TODO: sort requests by stock and handle requests to same stock together (not sure if faster)
-        self.replies[entry] = self.stockHandler.getHistorical(request["symbol"], request["start"], request["end"])  # add reply
+        a = self.stockHandler.getHistorical(request["symbol"], request["start"], request["end"])  # add reply
+        return json.dumps(json.loads(str(a)))
+
 
     def __getRecommend(self, request, entry):
         self.replies[entry] = self.algo.getRecommend()
 
     def __easySearch(self, request, entry):
-        self.replies[entry] = self.algo.getEasySearch(request["budget"])
+        a = self.algo.getEasySearch(request["budget"])
+        jsonObj = {}
+        pprint(a)
+        # for index, value in list(a.items()):
+        #     for i, v in list(value):
+        #         jsonObj[index] =
+        #     # print(str(type(value)))
+        #     q = value.to_dict().popitem()
+        #     pprint(q)
+        #     # pprint((q[1]))
+        #     jsonObj[index] = q[1].popitem()[1]
+        # z = str(json.dumps(jsonObj))
+
+        for stock_symbol, info in a.items():
+            d = {}
+            for info_entry, value in info.to_dict().items():
+                pprint(str(info_entry)+": "+str(value))
+                d[info_entry] = value.popitem()[1]
+            jsonObj[stock_symbol] = d
+            # print(z)
+        return json.dumps(jsonObj)
 
     def __advancedSearch(self, request, entry):
         self.replies[entry] = self.algo.getAdvSearch(request["budget"], request["companyType"], request["companyName"])
@@ -73,19 +99,20 @@ class Server:
         self.replies = {}
         #handle each request and append the replies dictionary with a reply. Exit when receiving an entry with "exit" value.
         for entry in message:
+            # reply = []
             request = message[entry]
             action = request["action"]
             if (action == "exit"):
-                self.__shouldExit()
+                return self.__shouldExit()
             elif(comp(action, "getRecommend")):
-                self.__getRecommend(request, entry)
+                return self.__getRecommend(request, entry)
             elif(comp(action, "getHistorical")):
-                self.__getHistorical(request, entry)
+                return self.__getHistorical(request, entry)
             elif(comp(action, "easySearch")):
-                self.__easySearch(request, entry)
+                return self.__easySearch(request, entry)
             elif (comp(action, "advancedSearch")):
-                self.__advancedSearch(request, entry)
-        return self.replies
+                return self.__advancedSearch(request, entry)
+        # return self.replies
 
 class ShutdownException(Exception): pass #define an exception for server shutdown
 

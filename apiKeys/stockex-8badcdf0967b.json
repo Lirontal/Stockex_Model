@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "stockex-202106",
+  "private_key_id": "8badcdf0967b8fe8e154c8cec8525b7d633a9b8d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3NTY+EYncfR/k\nVpC7hwxi1yscCfF8iueTC3QOIiE/kA+NpG10zAhbaOV1CagB7dkdaZARKuSgQR+u\nHKO/FWXYvnbnHjzfNzYDLR18824wWzlNnoO0EQeyiOdyCIPX/tqc9mz+Fj+0fB+3\nsVDleH7h/YfdYM3ExsHv+C3eqy65UMa6JnY12QtF+PcFshcJC0lvhUoW+Ee8keGW\n4dFVH3eroxATWXKLEvrmJxXzh4HVYvEFB884AlqjH5eOsKkCjhzHSmWPgixlCMe4\niTKchdCFluoWhc8gypuXnQKI5Wfw9wupHT462tKEHPDfkWVfqTxy2RFqAwH+9mzv\nvanBbLURAgMBAAECggEACbpTFipIki24pvSrvFwC3dquniSvBF28cb6EG94BuvDI\nyqIQ8nMvpxQ49CUeR8qbzSfWRPsXPE/I7ANMSdtL1vLiDbU5e+FgG6dmb0SJChtF\n6H0CtunH6VnDRExMcohvONy4KSkARUfpR+Ur4PYBcrl2CzIBKwd3XmkPR8lPcqUk\nMFPDlZgGJKrtxhxwti3F0kHhHFcW+ZVYfxpLSj74nHaUfzpiXg/2pmj/1oFrVu2g\nXQNJveK0SKgX5qjuG3qyRv2FmyG09TZMdNJ5cZLk5/BUifZKYI7CzOptCyuuQmHK\nDoQasmrwXdNiYJlP4RXoGeIbS5FzGy0wYD3R7a10WwKBgQDaca+CMCSuRlzmQx5Z\nRsASk3Hl9GxTLiJL6ImXupbJuRxScKmy3maXtJ53WkExuB3gJX8xAF0CCasyq8Oy\n2ZiolE4uTCaoQnC3oq2x8nyHwGs6IyZh6KIWuZrQFmSSOWnhDULXnO3G3bSr3bGi\n8Z9Gj1fGVelwOe4jDYapAPforwKBgQDWtK9P1O8gK1CzXTkh3+GMRLjQ0Evt1jnG\n6copy83ttcVJpamWLK4AqP68uVSxwskCzKcUmRbJKrJbiX4/nFzYaGjRXKQ0rT+Z\nRCX1BMrzP7cowzYbMPzUr7fsEtZ1nBU7jkSqIyU0fzPKDdO1WtEkF4BfcZKsBhF0\nwO+eUdUuPwKBgHIBu3Pa5IoANyQGC6TUhBIt2dgGRTL0dPnhF06VF3WYoutz2V19\nLVYn8jygYj4stYryhvtwERqrKSp88to5Lq9tF5CaNeLDKkjtInIo+E1xY4UoKzQW\nUeJCZEYOKdcXF+dZIHWfdYnA1DaOsdM0/8e3sDvXQspLsbmhqZIy6zAJAoGBAI9g\n5/Xi17Fe26x746xIasGWHulrQFlahwjblSKmNCW7Dj2pQH/F5IkSUdLL3NA8qKmS\n6zypIvtB5QuV3NYz4BiwWNb/C7UVwPPj+4kNI06fzPuOqTItW5nYonUm+0pc6hz0\nW8xWXgEZtQcIhsmEFUgJ3bNfD7iK8NtMAHh0Y21XAoGARVI6CcKAjJZ0Z/AlcCo4\ndNvWlfFiZ13ygnFmda5rFvSHuX8SQS8wob3pK95FehZDlZmQ1YJwbIicTz5IpcrO\nJcfd3CUsLyr+LSB8GyINwPNVGBJWUHUIbGqd3r/kyQ4LM5dtodIjdBbeOO8UwC1g\nCBXsZsBjjWNqxYgQ3HhxrVE=\n-----END PRIVATE KEY-----\n",
+  "client_email": "sentiment@stockex-202106.iam.gserviceaccount.com",
+  "client_id": "111925089702646549498",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sentiment%40stockex-202106.iam.gserviceaccount.com"
+}
