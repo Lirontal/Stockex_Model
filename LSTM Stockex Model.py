@@ -374,8 +374,8 @@ def train_test_split_linear_regression(stocks):
 
 # In[31]:
 
-
-def train_test_split_lstm(stocks, prediction_time=1, test_data_size=222, unroll_length=50):
+# TODO: HOW TO DETERMINE TEST_DATA_SIZE AND UNROLL_LENGTH, PREDICTION_TIME
+def train_test_split_lstm(stocks, prediction_time=1, test_data_size=100, unroll_length=50):
     """
         Split the data set into training and testing feature for Long Short Term Memory Model
         :param stocks: whole data set containing ['Open','Close','Volume'] features
