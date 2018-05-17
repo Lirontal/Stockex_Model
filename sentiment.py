@@ -35,3 +35,5 @@ def sentiment_text(text):
 
     print('Score: {}'.format(sentiment.score))
     print('Magnitude: {}'.format(sentiment.magnitude))
+
+sentiment_text("ayy")

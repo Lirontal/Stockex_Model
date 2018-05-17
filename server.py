@@ -5,6 +5,7 @@ import json
 import ast
 import time
 from algo import Algorithm as Algo
+from datetime import datetime
 from StockInfoProvider import StockInfoProvider
 def parse_dict(param_str):
     return ast.literal_eval(param_str)
@@ -39,7 +40,6 @@ class Server:
 
                 #  Send reply back to client
                 message = bytes.decode('utf-8')
-                print("msg:" + message)
                 self.reply(json.loads(message))
                 if(self.should_shutdown):
                     raise ShutdownException("server shutdown due to controller command")
@@ -70,22 +70,33 @@ class Server:
 
     def __easySearch(self, request, entry):
         a = self.algo.getEasySearch(request["budget"])
-        jsonObj = {}
 
-        for stock_symbol, info in a.items():
+        jsonObj = {}
+        i = 0
+        for stock_symbol, info in list(a.items()):
+            if (len(info) == 0 or len(info.iloc[0]) != 9):
+                continue
             d = {}
+            valid = True
             for info_entry, value in info.to_dict().items():
-                pprint(str(info_entry)+": "+str(value))
+                if(value[self.algo.sdc.lastUpdated] != value[self.algo.sdc.lastUpdated]):
+                    valid = False
+                    break
                 d[info_entry] = value.popitem()[1]
-            d.update(self.sip.getStockInfo(stock_symbol))
-            jsonObj[stock_symbol] = d
+            if(valid):
+                jsonObj[i] = d #jsonObj[stock_symbol] = d
+                i += 1
+        # pprint(jsonObj)
+        # print(str(jsonObj)[5513:5533])
+        # pprint(jsonObj)
+        # pprint(jsonObj)
         return json.dumps(jsonObj)
 
     def __advancedSearch(self, request, entry):
         self.replies[entry] = self.algo.getAdvSearch(request["budget"], request["companyType"], request["companyName"])
 
     def handle(self, message):
-        print("Got message: ")
+        print("Got message: ", end='')
         pprint(message)
         self.replies = {}
         #handle each request and append the replies dictionary with a reply. Exit when receiving an entry with "exit" value.

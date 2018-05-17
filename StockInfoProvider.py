@@ -7,6 +7,11 @@ class StockInfoProvider:
 
     def getStockInfo(self, symbol):
         infoRow = self.stocks_info.loc[symbol, :]
+        if(infoRow.Sector != infoRow.Sector):
+            infoRow.Sector="N/A"
+        if (infoRow.Name != infoRow.Name):
+            infoRow.Name = "N/A"
+
         return {"symbol": symbol, "company_name": infoRow.Name, "company_sector": infoRow.Sector}
 
     def getAllStocks(self):

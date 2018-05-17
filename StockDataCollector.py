@@ -19,6 +19,7 @@ class HiddenPrints:
 class StockHandler:
     def __init__(self, stockInfoProvider):
         self.sip = stockInfoProvider
+        self.lastUpdated = ""
     def __openStock(self, symbol, source = 'WIKI'):
         self.stock = bb.Share(source = 'WIKI', ticker = symbol)
 
@@ -31,17 +32,42 @@ class StockHandler:
     def getStockInfoForDay(self, symbols, date):
         return self.getStockInfoHistory(symbols, date, date)
 
-    def getStockInfoHistory(selfs, symbols, start_date, end_date):
-        sd = datetime.strptime(start_date, "%Y-%m-%d")
-        ed = datetime.strptime(end_date, "%Y-%m-%d")
+    def getStockInfoHistory(self, symbols, s_date, e_date):
+        start_date = datetime.strptime(s_date,"%Y-%m-%d")-timedelta(1)
+        end_date = datetime.strptime(e_date, "%Y-%m-%d")-timedelta(1)
         data = {}
+        if (len(symbols) == 0): return data
         with HiddenPrints():
-            if (len(symbols) == 0): return data
             data = web.DataReader(symbols, 'iex', start=start_date,
                                   end=end_date)  # quandl.get("XNAS/" + symbol+"_UADJ", start_date=date, end_date=date, returns="pandas")
             while (len(data) == 0):
                 start_date -= timedelta(1)
+                end_date -= timedelta(1)
                 data = web.DataReader(symbols, 'iex', start=start_date, end=end_date)
+
+        to_rem = set()
+        for key, dataframe in data.items():
+            company_info = self.sip.getStockInfo(key)
+            if (company_info["symbol"] != company_info["symbol"]):
+                company_info["symbol"] = "N/A"
+            dataframe["symbol"] = company_info["symbol"] #TODO: ADD CORRECTLY
+            if (company_info["company_name"] != company_info["company_name"]):
+                company_info["company_name"] = "N/A"
+            dataframe["company_name"] = company_info["company_name"]
+            if (company_info["company_sector"] != company_info["company_sector"]):
+                company_info["company_sector"] = "N/A"
+            dataframe["company_sector"] = company_info["company_sector"]
+
+            if(len(dataframe) == 0):
+                to_rem.add(key)
+                break
+            for d in dataframe.iloc[0]:
+                if d != d:
+                    to_rem.add(key)
+                    break
+        for k in to_rem:
+            data.pop(k)
+        self.lastUpdated = start_date.strftime("%Y-%m-%d")
         return data
 
     def getHistorical(self, symbol, start, end):
