@@ -3,11 +3,8 @@
 # # Stockex LSTM predictive model
 
 # In[1]:
-
-
 import pandas as pd
 import datetime
-
 
 # # Historical data fetch function using google finance
 # We've chosen Google Finanace because of the ability to handle closing prices adjustment
@@ -388,21 +385,14 @@ def build_improved_model(input_dim, output_dim, return_sequences):
     return model
 
 
-
 # In[276]:
-
-
 data = get_historical_data('AAPL', '2017-01-01', '2018-04-29')
 
 # In[277]:
-
-
 data.to_csv('google.csv', index=False)
 
 # Calculate Mean, Std , Min, Max for current dataset
-
 # In[14]:
-
 import pandas as pd
 import numpy as np
 
@@ -422,12 +412,9 @@ print("Close  --- mean :", np.mean(data['Close']), "  \t Std: ", np.std(data['Cl
 print("Volume --- mean :", np.mean(data['Volume']), "  \t Std: ", np.std(data['Volume']), "  \t Max: ",
       np.max(data['Volume']), "  \t Min: ", np.min(data['Volume']))
 
-# # Preprocessing
+# # Preprocessing # #
 
 # In[15]:
-
-
-
 stocks = remove_data(data)
 
 # Print the dataframe head and tail
@@ -436,7 +423,6 @@ print("---")
 print(stocks.tail())
 
 # Remove least prominent features - Date, Low and High value
-
 # In[17]:
 stocks = remove_data(data)
 
@@ -449,15 +435,12 @@ print(stocks.tail())
 
 # In[18]:
 import matplotlib.pyplot as plt
-
 plt.rcParams['figure.figsize'] = (18, 12)
 # Raw plotting
 
 # In[23]:
 # Normalize the data
-
 # In[25]:
-
 stocks = get_normalised_data(stocks)
 print(stocks.head())
 
@@ -470,42 +453,24 @@ print("Volume --- mean :", np.mean(stocks['Volume']), "  \t Std: ", np.std(stock
       np.max(stocks['Volume']), "  \t Min: ", np.min(stocks['Volume']))
 
 # In[26]:
-
-
 #plot_basic(stocks)
 
 # In[27]:
-
-
 stocks.to_csv('google_preprocessed.csv', index=False)
 
 # # Stock Data Manipulation
 
 # In[28]:
-
-
 import numpy as np
 import math
-
-
-
 # # linear Regression Benchmark Model
 
 # In[33]:
-
-
 from sklearn import linear_model
 import numpy as np
-
-
-
-
-
 # Load the preprocessed data
 
 # In[37]:
-
-
 import math
 import pandas as pd
 import numpy as np
@@ -521,8 +486,6 @@ display(stocks.head())
 # Split data into train and test pairs
 
 # In[38]:
-
-
 X_train, X_test, y_train, y_test, label_range = train_test_split_linear_regression(stocks)
 
 print("x_train", X_train.shape)
@@ -533,25 +496,21 @@ print("y_test", y_test.shape)
 # Train a Linear regressor model on training set and get prediction
 
 # In[39]:
-
 model = build_model(X_train, y_train)
 
 # Get prediction on test set
 
 # In[40]:
-
 predictions = predict_prices(model, X_test, label_range)
 
 # Plot the predicted values against actual
 
 # In[41]:
-
 plot_prediction(y_test, predictions)
 
 # measure accuracy of the prediction
 
 # In[42]:
-
 trainScore = mean_squared_error(X_train, y_train)
 print('Train Score: %.4f MSE (%.4f RMSE)' % (trainScore, math.sqrt(trainScore)))
 
@@ -563,19 +522,11 @@ print('Test Score: %.8f MSE (%.8f RMSE)' % (testScore, math.sqrt(testScore)))
 # LSTM  train and test phases
 
 # In[43]:
-
-
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential
 
-
-
-
-
 # In[46]:
-
-
 import math
 import time
 import pandas as pd
@@ -596,7 +547,6 @@ display(stocks_data.head())
 # Split train and test data sets and Unroll train and test data for lstm model
 
 # In[47]:
-
 z = train_test_split_lstm(stocks_data)
 X_train, X_test, y_train, y_test = z
 
@@ -618,7 +568,6 @@ X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
 # y_test = np.reshape(y_test, (-X_test.shape[0], 1, y_test.shape[1]))
 
 
-
 print("x_train", X_train.shape)
 print("y_train", y_train.shape)
 print("x_test", X_test.shape)
@@ -627,8 +576,6 @@ print("y_test", y_test.shape)
 #  Build a basic Long-Short Term Memory mode
 
 # In[48]:
-
-
 # build basic lstm model
 model = build_basic_model(input_dim=X_train.shape[-1], output_dim=unroll_length, return_sequences=True)
 
@@ -638,16 +585,13 @@ model.compile(loss='mean_squared_error', optimizer='adam')
 print('compilation time : ', time.time() - start)
 
 # Train the model
-
 # In[49]:
-
-
 model.fit(
     X_train,
     y_train,
     batch_size=1,
     epochs=1,
-    validation_split=0.05)
+    validation_split=0.05) # TODO: WHAT DOES THIS DO
 
 # Predict
 
@@ -683,15 +627,12 @@ predictions = model.predict(X_test)
 # Plot results
 
 # In[150]:
-
 print("PRINTGIN BLUE")
 plot_lstm_prediction(predictions, y_test)
 
 # Get Test Scores
 
 # In[151]:
-
-
 trainScore = model.evaluate(X_train, y_train, verbose=0)
 print('Train Score: %.8f MSE (%.8f RMSE)' % (trainScore, math.sqrt(trainScore)))
 
@@ -702,8 +643,6 @@ print('Test Score: %.8f MSE (%.8f RMSE)' % (testScore, math.sqrt(testScore)))
 # Step 1: Build an improved LSTM model
 
 # In[152]:
-
-
 # Set up hyperparameters
 batch_size = 512
 epochs = 20
@@ -719,34 +658,26 @@ print('compilation time : ', time.time() - start)
 # Train improved LSTM model
 
 # In[153]:
-
-
 model.fit(X_train,
           y_train,
           batch_size=batch_size,
           epochs=epochs,
           verbose=2,
-          validation_split=0.05
+          validation_split=0.05 # WHAT DOES THIS DO
           )
 
 # Make prediction on improved LSTM model
 
 # In[159]:
-
-
 # Generate predictions 
 predictions = model.predict(X_test, batch_size=batch_size)
 
 # In[160]:
-
-
 plot_lstm_prediction(predictions, y_test)
 
 # Get test score
 
 # In[161]:
-
-
 trainScore = model.evaluate(X_train, y_train, verbose=0)
 print('Train Score: %.8f MSE (%.8f RMSE)' % (trainScore, math.sqrt(trainScore)))
 
@@ -754,8 +685,6 @@ testScore = model.evaluate(X_test, y_test, verbose=0)
 print('Test Score: %.8f MSE (%.8f RMSE)' % (testScore, math.sqrt(testScore)))
 
 # In[162]:
-
-
 range = [np.amin(stocks_data['Close']), np.amax(stocks_data['Close'])]
 
 # Calculate the stock price delta in $
