@@ -13,6 +13,8 @@ import datetime
 # We've chosen Google Finanace because of the ability to handle closing prices adjustment
 
 # In[13]:
+
+
 def get_historical_data(symbol, start_date, end_date):
     ''' Daily quotes from Google. Date format='yyyy-mm-dd' '''
     symbol = symbol.upper()
@@ -29,7 +31,44 @@ def get_historical_data(symbol, start_date, end_date):
     return df
 
 
-# In[16]:
+# Retrieve desired ticker data
+
+# In[276]:
+
+
+data = get_historical_data('AAPL', '2017-01-01', '2018-04-29')
+
+# In[277]:
+
+
+data.to_csv('google.csv', index=False)
+
+# Calculate Mean, Std , Min, Max for current dataset
+
+# In[14]:
+
+import pandas as pd
+import numpy as np
+
+data = pd.read_csv('google.csv')
+print(data.head())
+print(data.tail())
+
+print("\n")
+print("Open   --- mean :", np.mean(data['Open']), "  \t Std: ", np.std(data['Open']), "  \t Max: ",
+      np.max(data['Open']), "  \t Min: ", np.min(data['Open']))
+print("High   --- mean :", np.mean(data['High']), "  \t Std: ", np.std(data['High']), "  \t Max: ",
+      np.max(data['High']), "  \t Min: ", np.min(data['High']))
+print("Low    --- mean :", np.mean(data['Low']), "  \t Std: ", np.std(data['Low']), "  \t Max: ", np.max(data['Low']),
+      "  \t Min: ", np.min(data['Low']))
+print("Close  --- mean :", np.mean(data['Close']), "  \t Std: ", np.std(data['Close']), "  \t Max: ",
+      np.max(data['Close']), "  \t Min: ", np.min(data['Close']))
+print("Volume --- mean :", np.mean(data['Volume']), "  \t Std: ", np.std(data['Volume']), "  \t Max: ",
+      np.max(data['Volume']), "  \t Min: ", np.min(data['Volume']))
+
+# # Preprocessing
+
+# In[15]:
 def remove_data(data):
     """
     Remove columns from the data
@@ -65,7 +104,44 @@ def remove_data(data):
     return stocks
 
 
+stocks = remove_data(data)
+
+# Print the dataframe head and tail
+print(stocks.head())
+print("---")
+print(stocks.tail())
+
+
+# In[16]:
+
+
+
+
+# Remove least prominent features - Date, Low and High value
+
+# In[17]:
+#def
+
+stocks = remove_data(data)
+
+# Print the dataframe head and tail
+print(stocks.head())
+print("---")
+print(stocks.tail())
+
+# # Plotting and Visualization
+
+# In[18]:
+
+
+import matplotlib.pyplot as plt
+
+plt.rcParams['figure.figsize'] = (18, 12)
+
+
 # In[19]:
+
+
 def price(x):
     """
     format the coords message box
@@ -76,6 +152,8 @@ def price(x):
 
 
 # In[20]:
+
+
 def plot_basic(stocks, title='Google Trading', y_label='Price USD', x_label='Trading Days'):
     """
     Plots basic pyplot
@@ -99,6 +177,8 @@ def plot_basic(stocks, title='Google Trading', y_label='Price USD', x_label='Tra
 
 
 # In[21]:
+
+
 def plot_prediction(actual, prediction, title='Google Trading vs Prediction', y_label='Price USD',
                     x_label='Trading Days'):
     """
@@ -130,6 +210,8 @@ def plot_prediction(actual, prediction, title='Google Trading vs Prediction', y_
 
 
 # In[22]:
+
+
 def plot_lstm_prediction(actual, prediction, title='Google Trading vs Prediction', y_label='Price USD',
                          x_label='Trading Days'):
     """
@@ -160,8 +242,17 @@ def plot_lstm_prediction(actual, prediction, title='Google Trading vs Prediction
     plt.show()
 
 
+# Raw plotting
+
+# In[23]:
+
+
 #plot_basic(stocks)
-#In[24]:
+
+
+# In[24]:
+
+
 def get_normalised_data(data):
     """
     Normalises the data values using MinMaxScaler from sklearn
@@ -181,7 +272,44 @@ def get_normalised_data(data):
     return data
 
 
+# Normalize the data
+
+# In[25]:
+
+
+stocks = get_normalised_data(stocks)
+print(stocks.head())
+
+print("\n")
+print("Open   --- mean :", np.mean(stocks['Open']), "  \t Std: ", np.std(stocks['Open']), "  \t Max: ",
+      np.max(stocks['Open']), "  \t Min: ", np.min(stocks['Open']))
+print("Close  --- mean :", np.mean(stocks['Close']), "  \t Std: ", np.std(stocks['Close']), "  \t Max: ",
+      np.max(stocks['Close']), "  \t Min: ", np.min(stocks['Close']))
+print("Volume --- mean :", np.mean(stocks['Volume']), "  \t Std: ", np.std(stocks['Volume']), "  \t Max: ",
+      np.max(stocks['Volume']), "  \t Min: ", np.min(stocks['Volume']))
+
+# In[26]:
+
+
+#plot_basic(stocks)
+
+# In[27]:
+
+
+stocks.to_csv('google_preprocessed.csv', index=False)
+
+# # Stock Data Manipulation
+
+# In[28]:
+
+
+import numpy as np
+import math
+
+
 # In[29]:
+
+
 def scale_range(x, input_range, target_range):
     """
 
@@ -199,6 +327,8 @@ def scale_range(x, input_range, target_range):
 
 
 # In[30]:
+
+
 def train_test_split_linear_regression(stocks):
     """
         Split the data set into training and testing feature for Linear Regression Model
@@ -243,8 +373,9 @@ def train_test_split_linear_regression(stocks):
 
 
 # In[31]:
+
 # TODO: HOW TO DETERMINE TEST_DATA_SIZE AND UNROLL_LENGTH, PREDICTION_TIME?
-def train_test_split_lstm(stocks, prediction_time=1, test_data_size=100, unroll_length=20):
+def train_test_split_lstm(stocks, prediction_time=1, test_data_size=100, unroll_length=50):
     """
         Split the data set into training and testing feature for Long Short Term Memory Model
         :param stocks: whole data set containing ['Open','Close','Volume'] features
@@ -271,6 +402,8 @@ def train_test_split_lstm(stocks, prediction_time=1, test_data_size=100, unroll_
 
 
 # In[32]:
+
+
 def unroll(data, sequence_length=24):
     """
     use different windows for testing and training to stop from leak of information in the data
@@ -284,7 +417,18 @@ def unroll(data, sequence_length=24):
     return np.asarray(result)
 
 
+# # linear Regression Benchmark Model
+
+# In[33]:
+
+
+from sklearn import linear_model
+import numpy as np
+
+
 # In[34]:
+
+
 def build_model(X, y):
     """
     build a linear regression model using sklearn.linear_model
@@ -301,6 +445,8 @@ def build_model(X, y):
 
 
 # In[35]:
+
+
 def build_model(X, y):
     """
     build a linear regression model using sklearn.linear_model
@@ -317,6 +463,8 @@ def build_model(X, y):
 
 
 # In[36]:
+
+
 def predict_prices(model, x, label_range):
     """
     Predict the label for given test sets
@@ -330,175 +478,6 @@ def predict_prices(model, x, label_range):
     predictions_rescaled, re_range = scale_range(predicted_price, input_range=[-1.0, 1.0], target_range=label_range)
 
     return predictions_rescaled.flatten()
-
-
-# In[44]:
-def build_basic_model(input_dim, output_dim, return_sequences):
-    """
-    Builds a basic lstm model
-    :param input_dim: input dimension of the model
-    :param output_dim: output dimension of the model
-    :param return_sequences: return sequence of the model
-    :return: a basic lstm model with 3 layers.
-    """
-    model = Sequential()
-    model.add(LSTM(
-        input_shape=(None, input_dim),
-        units=output_dim,
-        return_sequences=return_sequences))
-
-    model.add(LSTM(
-        100,
-        return_sequences=False))
-
-    model.add(Dense(
-        units=1))
-    model.add(Activation('linear'))
-
-    return model
-
-
-# In[45]:
-def build_improved_model(input_dim, output_dim, return_sequences):
-    """
-    Builds an improved Long Short term memory model using keras.layers.recurrent.lstm
-    :param input_dim: input dimension of model
-    :param output_dim: ouput dimension of model
-    :param return_sequences: return sequence for the model
-    :return: a 3 layered LSTM model
-    """
-    model = Sequential()
-    model.add(LSTM(
-        input_shape=(None, input_dim),
-        units=output_dim,
-        return_sequences=return_sequences))
-
-    model.add(Dropout(0.2))
-
-    model.add(LSTM(
-        128,
-        return_sequences=False))
-
-    model.add(Dropout(0.2))
-
-    model.add(Dense(
-        units=1))
-    model.add(Activation('linear'))
-
-    return model
-
-
-
-# In[276]:
-
-
-data = get_historical_data('AAPL', '2017-01-01', '2018-04-29')
-
-# In[277]:
-
-
-data.to_csv('google.csv', index=False)
-
-# Calculate Mean, Std , Min, Max for current dataset
-
-# In[14]:
-
-import pandas as pd
-import numpy as np
-
-data = pd.read_csv('google.csv')
-print(data.head())
-print(data.tail())
-
-print("\n")
-print("Open   --- mean :", np.mean(data['Open']), "  \t Std: ", np.std(data['Open']), "  \t Max: ",
-      np.max(data['Open']), "  \t Min: ", np.min(data['Open']))
-print("High   --- mean :", np.mean(data['High']), "  \t Std: ", np.std(data['High']), "  \t Max: ",
-      np.max(data['High']), "  \t Min: ", np.min(data['High']))
-print("Low    --- mean :", np.mean(data['Low']), "  \t Std: ", np.std(data['Low']), "  \t Max: ", np.max(data['Low']),
-      "  \t Min: ", np.min(data['Low']))
-print("Close  --- mean :", np.mean(data['Close']), "  \t Std: ", np.std(data['Close']), "  \t Max: ",
-      np.max(data['Close']), "  \t Min: ", np.min(data['Close']))
-print("Volume --- mean :", np.mean(data['Volume']), "  \t Std: ", np.std(data['Volume']), "  \t Max: ",
-      np.max(data['Volume']), "  \t Min: ", np.min(data['Volume']))
-
-# # Preprocessing
-
-# In[15]:
-
-
-
-stocks = remove_data(data)
-
-# Print the dataframe head and tail
-print(stocks.head())
-print("---")
-print(stocks.tail())
-
-# Remove least prominent features - Date, Low and High value
-
-# In[17]:
-stocks = remove_data(data)
-
-# Print the dataframe head and tail
-print(stocks.head())
-print("---")
-print(stocks.tail())
-
-# # Plotting and Visualization
-
-# In[18]:
-import matplotlib.pyplot as plt
-
-plt.rcParams['figure.figsize'] = (18, 12)
-# Raw plotting
-
-# In[23]:
-# Normalize the data
-
-# In[25]:
-
-stocks = get_normalised_data(stocks)
-print(stocks.head())
-
-print("\n")
-print("Open   --- mean :", np.mean(stocks['Open']), "  \t Std: ", np.std(stocks['Open']), "  \t Max: ",
-      np.max(stocks['Open']), "  \t Min: ", np.min(stocks['Open']))
-print("Close  --- mean :", np.mean(stocks['Close']), "  \t Std: ", np.std(stocks['Close']), "  \t Max: ",
-      np.max(stocks['Close']), "  \t Min: ", np.min(stocks['Close']))
-print("Volume --- mean :", np.mean(stocks['Volume']), "  \t Std: ", np.std(stocks['Volume']), "  \t Max: ",
-      np.max(stocks['Volume']), "  \t Min: ", np.min(stocks['Volume']))
-
-# In[26]:
-
-
-#plot_basic(stocks)
-
-# In[27]:
-
-
-stocks.to_csv('google_preprocessed.csv', index=False)
-
-# # Stock Data Manipulation
-
-# In[28]:
-
-
-import numpy as np
-import math
-
-
-
-# # linear Regression Benchmark Model
-
-# In[33]:
-
-
-from sklearn import linear_model
-import numpy as np
-
-
-
 
 
 # Load the preprocessed data
@@ -534,11 +513,13 @@ print("y_test", y_test.shape)
 
 # In[39]:
 
+
 model = build_model(X_train, y_train)
 
 # Get prediction on test set
 
 # In[40]:
+
 
 predictions = predict_prices(model, X_test, label_range)
 
@@ -546,11 +527,13 @@ predictions = predict_prices(model, X_test, label_range)
 
 # In[41]:
 
+
 plot_prediction(y_test, predictions)
 
 # measure accuracy of the prediction
 
 # In[42]:
+
 
 trainScore = mean_squared_error(X_train, y_train)
 print('Train Score: %.4f MSE (%.4f RMSE)' % (trainScore, math.sqrt(trainScore)))
@@ -570,7 +553,64 @@ from keras.layers.recurrent import LSTM
 from keras.models import Sequential
 
 
+# In[44]:
 
+
+def build_basic_model(input_dim, output_dim, return_sequences):
+    """
+    Builds a basic lstm model 
+    :param input_dim: input dimension of the model
+    :param output_dim: output dimension of the model
+    :param return_sequences: return sequence of the model
+    :return: a basic lstm model with 3 layers.
+    """
+    model = Sequential()
+    model.add(LSTM(
+        input_shape=(None, input_dim),
+        units=output_dim,
+        return_sequences=return_sequences))
+
+    model.add(LSTM(
+        100,
+        return_sequences=False))
+
+    model.add(Dense(
+        units=1))
+    model.add(Activation('linear'))
+
+    return model
+
+
+# In[45]:
+
+
+def build_improved_model(input_dim, output_dim, return_sequences):
+    """
+    Builds an improved Long Short term memory model using keras.layers.recurrent.lstm
+    :param input_dim: input dimension of model
+    :param output_dim: ouput dimension of model
+    :param return_sequences: return sequence for the model
+    :return: a 3 layered LSTM model
+    """
+    model = Sequential()
+    model.add(LSTM(
+        input_shape=(None, input_dim),
+        units=output_dim,
+        return_sequences=return_sequences))
+
+    model.add(Dropout(0.2))
+
+    model.add(LSTM(
+        128,
+        return_sequences=False))
+
+    model.add(Dropout(0.2))
+
+    model.add(Dense(
+        units=1))
+    model.add(Activation('linear'))
+
+    return model
 
 
 # In[46]:
