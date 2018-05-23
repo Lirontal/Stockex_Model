@@ -543,18 +543,18 @@ class StockModel:
 
         # In[37]:
 
-        stocks = pd.read_csv('./csv/'+symbol+'_preprocessed.csv')
-        display(stocks.head())
+        # stocks = pd.read_csv('./csv/'+symbol+'_preprocessed.csv')
+        # display(stocks.head())
+        #
+        # # Split data into train and test pairs
+        #
+        # # In[38]:
+        # X_train, X_test, y_train, y_test, label_range = self.train_test_split_linear_regression(stocks)
 
-        # Split data into train and test pairs
-
-        # In[38]:
-        X_train, X_test, y_train, y_test, label_range = self.train_test_split_linear_regression(stocks)
-
-        print("x_train", X_train.shape)
-        print("y_train", y_train.shape)
-        print("x_test", X_test.shape)
-        print("y_test", y_test.shape)
+        # print("x_train", X_train.shape)
+        # print("y_train", y_train.shape)
+        # print("x_test", X_test.shape)
+        # print("y_test", y_test.shape)
 
         # Train a Linear regressor model on training set and get prediction
 
@@ -599,7 +599,7 @@ class StockModel:
         z = self.train_test_split_lstm(stocks_data)
         X_train, X_test, y_train, y_test = z
 
-        print("PRINT MODEL:" + str(y_train))
+        print("PRINT MODEL:" + str(X_train))
 
         unroll_length = 50
         # X_train = unroll(X_train, unroll_length)
@@ -610,8 +610,8 @@ class StockModel:
         # y_train = np.reshape(y_train, (y_train.shape[0], 1, y_train.shape[1]))
         # y_test = np.reshape(y_test, (y_test.shape[0], 1, y_test.shape[1]))
 
-        X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
-        X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
+        X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))# TODO: problem is probably here, original values were ['Open', 'Close', 'Volume'], but now we have ['Open', 'Close', 'Volume','Positive','Neutral','Negative','Compound']
+        X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))# TODO: problem is probably here, original values were ['Open', 'Close', 'Volume'], but now we have ['Open', 'Close', 'Volume','Positive','Neutral','Negative','Compound']
         #
         # y_train = np.reshape(y_train, (-X_train.shape[0], 1, y_train.shape[1]))
         # y_test = np.reshape(y_test, (-X_test.shape[0], 1, y_test.shape[1]))
@@ -672,7 +672,7 @@ class StockModel:
         print('Test Score: %.4f MSE (%.4f RMSE)' % (testScore, math.sqrt(testScore)))'''
 
         predictions = model.predict(X_test)
-
+        print('X_test: '+str(X_test))
         # Plot results
 
         # In[150]:
