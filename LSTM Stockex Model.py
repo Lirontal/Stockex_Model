@@ -3,22 +3,10 @@
 # # Stockex LSTM predictive model
 
 # In[1]:
-import pandas as pd
 import datetime
-import pandas as pd
-import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import time
-import pandas as pd
 from sklearn import preprocessing
 import matplotlib.pyplot as plt
-from sklearn import linear_model
-import numpy as np
-import numpy as np
-import math
-import math
-import pandas as pd
-from IPython.display import display
 from sklearn import linear_model
 from sklearn.metrics import mean_squared_error
 import math
@@ -50,10 +38,11 @@ class StockModel:
 
 
     # In[16]:
-    def remove_data(self, data):
+    def remove_data(self, data): #TODO: TURN INTO remove_data_with_sentiment
         """
         Remove columns from the data
         :param data: a record of all the stock prices with columns as  ['Date','Open','High','Low','Close','Volume']
+        :param sentiment_df: dataframe containing the sentiment for each day ['Date','Positive', 'Neutral', 'Negative', 'Compound']
         :return: a DataFrame with columns as  ['index','Open','Close','Volume']
         """
         # Define columns of data to keep from historical stock data
@@ -61,7 +50,6 @@ class StockModel:
         open = []
         close = []
         volume = []
-
         # Loop through the stock data objects backwards and store factors we want to keep
         i_counter = 0
         for i in range(len(data) - 1, -1, -1):
@@ -80,7 +68,54 @@ class StockModel:
         stocks['Open'] = open
         stocks['Close'] = pd.to_numeric(close)
         stocks['Volume'] = pd.to_numeric(volume)
+        # return new formatted data
+        return stocks
 
+    def remove_data_with_sentiment(self, data, sentiment_df): #TODO: TURN INTO remove_data_with_sentiment
+        """
+        Remove columns from the data
+        :param data: a record of all the stock prices with columns as  ['Date','Open','High','Low','Close','Volume']
+        :param sentiment_df: dataframe containing the sentiment for each day ['Date','Positive', 'Neutral', 'Negative', 'Compound']
+        :return: a DataFrame with columns as  ['index','Open','Close','Volume']
+        """
+        # Define columns of data to keep from historical stock data
+        item = []
+        open = []
+        close = []
+        volume = []
+        # TODO: should we include pos, neut, neg + compound OR just compound?
+        positive = []
+        neutral = []
+        negative = []
+        compound = []
+        # Loop through the stock data objects backwards and store factors we want to keep
+        i_counter = 0
+        for i in range(len(data) - 1, -1, -1):
+            item.append(i_counter)
+            open.append(data['Open'][i])
+            close.append(data['Close'][i])
+            volume.append(data['Volume'][i])
+            # positive.append(sentiment_df['Positive'][i])
+            # neutral.append(sentiment_df['Neutral'][i])
+            # negative.append(sentiment_df['Negative'][i])
+            # compound.append(sentiment_df['Compound'][i])
+            i_counter += 1
+
+        # Create a data frame for stock data
+        stocks = pd.DataFrame()
+
+
+        # Add factors to data frame
+        stocks['Item'] = item
+        stocks['Open'] = open
+        stocks['Close'] = pd.to_numeric(close)
+        stocks['Volume'] = pd.to_numeric(volume)
+
+        sentiment_df.drop('Date',axis=1)
+        stocks = stocks.add(sentiment_df,fill_value=0) #sentiment_df[['Positive']]
+        # stocks['Neutral'] = sentiment_df[['Neutral']]
+        # stocks['Negative'] = sentiment_df[['Negative']]
+        # stocks['Compound'] = sentiment_df[['Compound']]
         # return new formatted data
         return stocks
 
@@ -199,6 +234,20 @@ class StockModel:
 
         return data
 
+    def get_normalised_data_with_sentiment(self, data):
+        """
+        Normalises the data values using MinMaxScaler from sklearn
+        :param data: a DataFrame with columns as  ['index','Open','Close','Volume']
+        :return: a DataFrame with normalised value for all the columns except index
+        """
+
+        scaler = preprocessing.MinMaxScaler()
+        # Initialize a scaler, then apply it to the features
+        scaler = MinMaxScaler()
+        numerical = ['Open', 'Close', 'Volume','Positive','Neutral','Negative','Compound']
+        data[numerical] = scaler.fit_transform(data[numerical])
+
+        return data
 
     # In[29]:
     def scale_range(self, x, input_range, target_range):
@@ -231,7 +280,7 @@ class StockModel:
         # Create numpy arrays for features and targets
         feature = []
         label = []
-
+        print("STOCKEROOS: "+ str(stocks))
         # Convert dataframe columns to numpy arrays for scikit learn
         for index, row in stocks.iterrows():
             # print([np.array(row['Item'])])
@@ -331,7 +380,6 @@ class StockModel:
         X = np.reshape(X, (X.shape[0], 1))
         y = np.reshape(y, (y.shape[0], 1))
         linear_mod.fit(X, y)  # fitting the data points in the model
-
         return linear_mod
 
 
@@ -373,7 +421,7 @@ class StockModel:
         model.add(Dense(
             units=1))
         model.add(Activation('linear'))
-
+        model.add(Dropout(0.2))
         return model
 
 
@@ -392,13 +440,13 @@ class StockModel:
             units=output_dim,
             return_sequences=return_sequences))
 
-        model.add(Dropout(0.2))
+        model.add(Dropout(0.5))
 
         model.add(LSTM(
             128,
             return_sequences=False))
 
-        model.add(Dropout(0.2))
+        model.add(Dropout(0.5))
 
         model.add(Dense(
             units=1))
@@ -437,7 +485,14 @@ class StockModel:
         # # Preprocessing # #
 
         # In[15]:
-        stocks = self.remove_data(data)
+        #TODO: CHANGE pddf TO SENTIMENT DATAFRAME WE RECEIVED FROM SENTIMENT ANALYSIS
+        pddf = pd.DataFrame(np.random.randint(0,100,size=(len(data), 5)), columns=['Date','Positive','Neutral','Negative','Compound'])
+        # pddf['Date']= 1
+        # pddf['Positive']= 1
+        # pddf['Neutral']= 1
+        # pddf['Negative']= 1
+        # pddf['Compound']= 1
+        stocks = self.remove_data_with_sentiment(data, pddf)
 
         # Print the dataframe head and tail
         print(stocks.head())
@@ -446,12 +501,8 @@ class StockModel:
 
         # Remove least prominent features - Date, Low and High value
         # In[17]:
-        stocks = self.remove_data(data)
+        stocks = self.remove_data_with_sentiment(data, pddf)
 
-        # Print the dataframe head and tail
-        print(stocks.head())
-        print("---")
-        print(stocks.tail())
 
         # # Plotting and Visualization
 
@@ -463,7 +514,7 @@ class StockModel:
         # In[23]:
         # Normalize the data
         # In[25]:
-        stocks = self.get_normalised_data(stocks)
+        stocks = self.get_normalised_data_with_sentiment(stocks)
         print(stocks.head())
 
         print("\n")
@@ -508,26 +559,26 @@ class StockModel:
         # Train a Linear regressor model on training set and get prediction
 
         # In[39]:
-        model = self.build_model(X_train, y_train)
-
+        # model = self.build_model(X_train, y_train)
+        # model.add(Dropout(0.5))
         # Get prediction on test set
 
         # In[40]:
-        predictions = self.predict_prices(model, X_test, label_range)
+        # predictions = self.predict_prices(model, X_test, label_range)
 
         # Plot the predicted values against actual
 
         # In[41]:
-        self.plot_prediction(y_test, predictions)
+        # self.plot_prediction(y_test, predictions)
 
         # measure accuracy of the prediction
 
         # In[42]:
-        trainScore = mean_squared_error(X_train, y_train)
-        print('Train Score: %.4f MSE (%.4f RMSE)' % (trainScore, math.sqrt(trainScore)))
-
-        testScore = mean_squared_error(predictions, y_test)
-        print('Test Score: %.8f MSE (%.8f RMSE)' % (testScore, math.sqrt(testScore)))
+        # trainScore = mean_squared_error(X_train, y_train)
+        # print('Train Score: %.4f MSE (%.4f RMSE)' % (trainScore, math.sqrt(trainScore)))
+        #
+        # testScore = mean_squared_error(predictions, y_test)
+        # print('Test Score: %.8f MSE (%.8f RMSE)' % (testScore, math.sqrt(testScore)))
 
         # ## Long-Sort Term Memory Model
         #
@@ -543,7 +594,7 @@ class StockModel:
         display(stocks_data.head())
 
         # Split train and test data sets and Unroll train and test data for lstm model
-
+        # TODO: WHY DOES MODEL PREDICT ACCORDING TO HISTORY AND IGNORES SENTIMENT? MAYBE BECAUSE OF SHAPE?
         # In[47]:
         z = self.train_test_split_lstm(stocks_data)
         X_train, X_test, y_train, y_test = z
