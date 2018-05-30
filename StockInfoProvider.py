@@ -16,3 +16,5 @@ class StockInfoProvider:
 
     def getAllStocks(self):
         return self.stocks_info.index.values
+
+

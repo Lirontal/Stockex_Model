@@ -1,11 +1,11 @@
 import bulbea as bb
 from pprint import pprint as pp
 import json
-import quandl
+
 from datetime import datetime, timedelta
 import pandas_datareader.data as web
 import sys
-quandl.ApiConfig.api_key = "3JsqccnL2kPvfJ2ekA-a"
+# quandl.ApiConfig.api_key = "3JsqccnL2kPvfJ2ekA-a"
 
 
 class HiddenPrints:
@@ -23,30 +23,36 @@ class StockHandler:
     def __openStock(self, symbol, source = 'WIKI'):
         self.stock = bb.Share(source = 'WIKI', ticker = symbol)
 
-    def __quandl(self, symbol, start, end):
-        data = quandl.get("WIKI/" + symbol, start_date=start, end_date=end,returns="pandas")
-        del data['Ex-Dividend'], data['Split Ratio']
-        data = data.transform(lambda row: row[:10], axis=1) #Clean timestamps
-        return data
+    # def __quandl(self, symbol, start, end):
+        # data = quandl.get("WIKI/" + symbol, start_date=start, end_date=end,returns="pandas")
+        # del data['Ex-Dividend'], data['Split Ratio']
+        # data = data.transform(lambda row: row[:10], axis=1) #Clean timestamps
+        # return data
 
     def getStockInfoForDay(self, symbols, date):
         return self.getStockInfoHistory(symbols, date, date)
 
     def getStockInfoHistory(self, symbols, s_date, e_date):
-        start_date = datetime.strptime(s_date,"%Y-%m-%d")-timedelta(1)
-        end_date = datetime.strptime(e_date, "%Y-%m-%d")-timedelta(1)
+        start_date = self.getLastActiveDay(s_date - timedelta(4))
+        end_date = self.getLastActiveDay(e_date - timedelta(4))
+        # start_date = datetime.strptime(s_date,"%Y-%m-%d")-timedelta(4)
+        # end_date = datetime.strptime(e_date, "%Y-%m-%d")-timedelta(4)
         data = {}
         if (len(symbols) == 0): return data
         with HiddenPrints():
             data = web.DataReader(symbols, 'iex', start=start_date,
-                                  end=end_date)  # quandl.get("XNAS/" + symbol+"_UADJ", start_date=date, end_date=date, returns="pandas")
+                                  end=start_date)  # quandl.get("XNAS/" + symbol+"_UADJ", start_date=date, end_date=date, returns="pandas")
             while (len(data) == 0):
                 start_date -= timedelta(1)
                 end_date -= timedelta(1)
+
                 data = web.DataReader(symbols, 'iex', start=start_date, end=end_date)
 
+        # print(data)
+        # print("DATA:"+str(data))
         to_rem = set()
         for key, dataframe in data.items():
+
             company_info = self.sip.getStockInfo(key)
             if (company_info["symbol"] != company_info["symbol"]):
                 company_info["symbol"] = "N/A"
@@ -81,8 +87,8 @@ class StockHandler:
         return data
 
     def getLastActiveDay(self,date):
-        date = datetime.strptime(date,"%Y-%m-%d") - timedelta(1)
-        print(date.weekday())
+        date = date - timedelta(1)
+        # print(date.weekday())
         while(5 >= date.weekday() >= 6):
             date -= timedelta(1)
         return date
