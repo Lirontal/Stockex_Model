@@ -40,6 +40,7 @@ class Server:
 
                 #  Send reply back to client
                 message = bytes.decode('utf-8')
+                print("MESSAGE: "+message)
                 self.reply(json.loads(message))
                 if(self.should_shutdown):
                     raise ShutdownException("server shutdown due to controller command")
@@ -93,7 +94,27 @@ class Server:
         return json.dumps(jsonObj)
 
     def __advancedSearch(self, request, entry):
-        self.replies[entry] = self.algo.getAdvSearch(request["budget"], request["companyType"], request["companyName"])
+        a = self.algo.getAdvSearch(request["budget"], request["companyType"], request["companyName"])
+        jsonObj = {}
+        i = 0
+        for stock_symbol, info in list(a.items()):
+            if (len(info) == 0 or len(info.iloc[0]) != 9):
+                continue
+            d = {}
+            valid = True
+            for info_entry, value in info.to_dict().items():
+                if (value[self.algo.sdc.lastUpdated] != value[self.algo.sdc.lastUpdated]):
+                    valid = False
+                    break
+                d[info_entry] = value.popitem()[1]
+            if (valid):
+                jsonObj[i] = d  # jsonObj[stock_symbol] = d
+                i += 1
+        # pprint(jsonObj)
+        # print(str(jsonObj)[5513:5533])
+        # pprint(jsonObj)
+        # pprint(jsonObj)
+        return json.dumps(jsonObj)
 
     def handle(self, message):
         print("Got message: ", end='')

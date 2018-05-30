@@ -25,8 +25,8 @@ class Algorithm:
         print("Preparing "+str(len(a))+" stock data entries...")
 
         i = 0 #TODO:CHANGE TO 0
-        chunk_size = 700 #TODO: CHANGE TO 700
-        while i < 40:#i < len(a):
+        chunk_size = 20 #TODO: CHANGE TO 700
+        while i < 5:#i < len(a):
             entry = self.sdc.getStockInfoForDay(list(a[i:i+chunk_size-1]), datetime.today())#"2017-04-25")#datetime.today().strftime('%Y-%m-%d'))''''list(a[i:i+chunk_size-1])'''
             self.lastUpdated = self.sdc.lastUpdated
             self.preparedCompanyData.update(entry)
@@ -41,23 +41,29 @@ class Algorithm:
                 continue
             print(index)
             value["score"] = self.getScoreForStock(index)
-        print(self.preparedCompanyData)
+        # print("COMP DATA "+str(self.preparedCompanyData))
         print("Done preparing.")
-
 
     def getEasySearch(self, budget):
         b = int(budget)
         # print(self.preparedCompanyData)
-
         # pp(self.preparedCompanyData)
-        return self.preparedCompanyData
-
-    def getAdvancedSearch(self, budget):
-        easyData = self.getEasySearch(self,budget)
-
+        return {k: df for k, df in self.preparedCompanyData.items() if df.head(1)["open"][0] <= b}
 
     def getAdvSearch(self, budget, company_type, company_name):
-        return self.getEasySearch(budget)
+        d = self.getEasySearch(budget)
+        # print("********** PRINTING *************")
+        print("HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: ")
+        for key, value in d.items():
+            print(str(value))
+        # d =
+        # d = {k: df for k, df in d.items() if }
+        d = {k: df for k, df in d.items() if "company_name" in df.head(1)}
+
+        # try:
+        return {k: df for k, df in d.items() if (company_name.lower() in df.head(1)["company_name"][0].lower()) & (company_type.lower() in df.head(1)["company_sector"][0].lower())}
+        # except KeyError:
+        #     return d
 
     def getRecommend(self,symbol):
         #TODO: check DB for previous recommendations and return if they are recent
