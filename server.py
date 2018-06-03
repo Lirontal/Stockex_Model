@@ -69,6 +69,9 @@ class Server:
     def __getRecommend(self, request, entry):
         self.replies[entry] = self.algo.getRecommend()
 
+    def _getPredHistory(self, request, entry):
+        self.replies[entry] = self.algo.getPredHistory()
+
     def __easySearch(self, request, entry):
         a = self.algo.getEasySearch(request["budget"])
 

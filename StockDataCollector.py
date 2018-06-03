@@ -30,23 +30,20 @@ class StockHandler:
         # return data
 
     def getStockInfoForDay(self, symbols, date):
-        return self.getStockInfoHistory(symbols, date, date)
+        d = self.getLastActiveDay(date - timedelta(4))
+        return self.getStockInfoHistory(symbols, d, d)
 
     def getStockInfoHistory(self, symbols, s_date, e_date):
-        start_date = self.getLastActiveDay(s_date - timedelta(4))
-        end_date = self.getLastActiveDay(e_date - timedelta(4))
-        # start_date = datetime.strptime(s_date,"%Y-%m-%d")-timedelta(4)
-        # end_date = datetime.strptime(e_date, "%Y-%m-%d")-timedelta(4)
         data = {}
         if (len(symbols) == 0): return data
         with HiddenPrints():
-            data = web.DataReader(symbols, 'iex', start=start_date,
-                                  end=start_date)  # quandl.get("XNAS/" + symbol+"_UADJ", start_date=date, end_date=date, returns="pandas")
+            data = web.DataReader(symbols, 'iex', start=s_date,
+                                  end=e_date)  # quandl.get("XNAS/" + symbol+"_UADJ", start_date=date, end_date=date, returns="pandas")
             while (len(data) == 0):
-                start_date -= timedelta(1)
-                end_date -= timedelta(1)
+                s_date -= timedelta(1)
+                e_date -= timedelta(1)
 
-                data = web.DataReader(symbols, 'iex', start=start_date, end=end_date)
+                data = web.DataReader(symbols, 'iex', start=s_date, end=e_date)
 
         # print(data)
         # print("DATA:"+str(data))
@@ -73,7 +70,7 @@ class StockHandler:
                     break
         for k in to_rem:
             data.pop(k)
-        self.lastUpdated = start_date.strftime("%Y-%m-%d")
+        self.lastUpdated = s_date.strftime("%Y-%m-%d")
         return data
 
     def getHistorical(self, symbol, start, end):

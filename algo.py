@@ -34,9 +34,10 @@ class Algorithm:
 
         # print(self.preparedCompanyData["AA"]) #TEST
         # Calc score for each stock
+        latest = datetime.today() - timedelta(4)
         for index, value in self.preparedCompanyData.items():
             try:
-                self.sm.start(index,self.start_date,self.end_date)
+                self.sm.start(index,self.start_date,self.end_date, latest, latest)
             except (urllib_err.HTTPError,TypeError):
                 continue
             print(index)
@@ -53,15 +54,13 @@ class Algorithm:
     def getAdvSearch(self, budget, company_type, company_name):
         d = self.getEasySearch(budget)
         # print("********** PRINTING *************")
-        print("HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: ")
+
         for key, value in d.items():
             print(str(value))
         # d =
-        # d = {k: df for k, df in d.items() if }
-        d = {k: df for k, df in d.items() if "company_name" in df.head(1)}
-
+        d = {k: df for k, df in d.items() if ("company_name" in df.head(1))}
         # try:
-        return {k: df for k, df in d.items() if (company_name.lower() in df.head(1)["company_name"][0].lower()) & (company_type.lower() in df.head(1)["company_sector"][0].lower())}
+        return {k: df for k, df in d.items() if  (company_name.lower() in df.head(1)["company_name"][0].lower()) & (company_type.lower() in df.head(1)["company_sector"][0].lower())}
         # except KeyError:
         #     return d
 
@@ -70,10 +69,10 @@ class Algorithm:
         return 10.0
 
     def getScoreForStock(self, symbol):
-        # try:
-        return self.sm.stockDataDict[symbol]
-        # except (KeyError):
-        #     pass
+        try:
+            return self.sm.stockDataDict[symbol]
+        except (KeyError):
+            pass
 
 
 # algo = Algorithm()

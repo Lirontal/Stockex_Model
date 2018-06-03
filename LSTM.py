@@ -19,15 +19,15 @@ from sklearn.preprocessing import MinMaxScaler
 import random
 import os.path
 
-# # Historical data fetch function using google finance
-# We've chosen Google Finanace because of the ability to handle closing prices adjustment
+# # Fetch historical stock data using google finance (uk)
+# We've chosen Google Finanace because of the ability to handle adjustment close prices
 class StockModel:
     def __init__(self):
         self.sip = StockInfoProvider()
         self.stockDataDict = {}
 
     # In[13]:
-    def get_historical_data(self, symbol, start_date, end_date):
+    def fetch_stocks_data(self, symbol, start_date, end_date):
         ''' Daily quotes from Google. Date format='yyyy-mm-dd' '''
         symbol = symbol.upper()
         start = datetime.date(int(start_date[0:4]), int(start_date[5:7]), int(start_date[8:10]))
@@ -38,7 +38,6 @@ class StockModel:
         print(symbol)
         col_names = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
         stocks = pd.read_csv(url_string, header=0, names=col_names)
-
         df = pd.DataFrame(stocks)
         return df
 
@@ -47,7 +46,7 @@ class StockModel:
     def remove_data(self, data): #TODO: TURN INTO remove_data_with_sentiment
         """
         Remove columns from the data
-        :param data: a record of all the stock prices with columns as  ['Date','Open','High','Low','Close','Volume']
+        :param data: stock data containing the following columns:  ['Date','Open','High','Low','Close','Volume']
         :param sentiment_df: dataframe containing the sentiment for each day ['Date','Positive', 'Neutral', 'Negative', 'Compound']
         :return: a DataFrame with columns as  ['index','Open','Close','Volume']
         """
@@ -242,6 +241,7 @@ class StockModel:
         # Initialize a scaler, then apply it to the features
         scaler = MinMaxScaler()
         numerical = ['Open', 'Close', 'Volume']
+
         data[numerical] = scaler.fit_transform(data[numerical])
 
         return data
@@ -257,9 +257,11 @@ class StockModel:
         # Initialize a scaler, then apply it to the features
         scaler = MinMaxScaler()
         numerical = ['Open', 'Close', 'Volume']#,'Positive','Neutral','Negative','Compound'] #SENTIMENT
-        data[numerical] = scaler.fit_transform(data[numerical])
+        mx = data['Close'].max()
+        mn = data['Close'].min()
+        data[numerical] = scaler.fit_transform(data[numerical]) #TODO: UNCOMMENT!!!!!!!!!!!!!!!!KBJFEVDWFVWEFVGIWEVWEFVGR
 
-        return data
+        return data, mx, mn
 
     # In[29]:
     def scale_range(self, x, input_range, target_range):
@@ -324,7 +326,7 @@ class StockModel:
 
     # In[31]:
     # TODO: HOW TO DETERMINE TEST_DATA_SIZE AND UNROLL_LENGTH, PREDICTION_TIME?
-    def train_test_split_lstm(self, stocks, prediction_time=1, test_data_size=80, unroll_length=20):# 80,20
+    def train_test_split_lstm(self, stocks, prediction_time=1, test_data_size=160, unroll_length=40):# 80,20
         """
             Split the data set into training and testing feature for Long Short Term Memory Model
             :param stocks: whole data set containing ['Open','Close','Volume'] features
@@ -468,12 +470,13 @@ class StockModel:
         return model
 
 
-
-    def start(self, symbol, start_date, end_date):
+    def start(self, symbol, history_start_date, history_end_date, predict_start_date, predict_end_date):
+        #symbol="AAPL" #TODO:COOMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #TODO: train for every stock combined
         if not os.path.exists('./csv/'+symbol+'.csv'):
-            data = self.get_historical_data(symbol, start_date, end_date)
+            data = self.fetch_stocks_data(symbol, history_start_date, history_end_date)
             data.to_csv('./csv/'+symbol+'.csv', index=False) #TODO: UNCOMMENT
+
 
         # Calculate Mean, Std , Min, Max for current dataset
         # In[14]:
@@ -526,7 +529,7 @@ class StockModel:
         # In[23]:
         # Normalize the data
         # In[25]:
-        stocks = self.get_normalised_data_with_sentiment(stocks)
+        stocks, mx, mn = self.get_normalised_data_with_sentiment(stocks)
         # print(stocks.head())
         #
         # print("\n")
@@ -736,6 +739,14 @@ class StockModel:
         predictions = model.predict(X_test, batch_size=batch_size)
         print('ACTUAL: ' + str(stocks))
         print('PREDICT: ' + str(predictions))
+        df = pd.DataFrame(predictions)
+        # mx = df.max()
+        # mn = df.min()
+        print(df)
+       # df = df.transform(lambda x: (x * (mx - mn)) + mn)
+
+        df.to_csv("AAPL2.csv")
+        #predictions.to_csv('./csv/'+"AAPL2"+'.csv', index=False)
         # In[160]:
         #self.plot_lstm_prediction(predictions, y_test) #TODO: UNCOMMENT
 
@@ -754,13 +765,22 @@ class StockModel:
         true_delta = testScore * (range[1] - range[0])
         ## TODO PRINTS ##
         # print('Delta Price: %.6f - RMSE * Adjusted Close Range' % true_delta)
-
         # print("PREDICTIONS: "+str(predictions["Close"]))
         # print("Actual: "+str(stocks))
 
         # TODO: self.stockDataDict[symbol] = <calculate score for symb> #
 
         self.stockDataDict[symbol] = random.randint(0,100)# TODO: REMOVE PLACEHOLDER
+
+        def get_recommendation():
+            # grab the last 3 items in the most current frame (last nested loop) and covert closing prices to a 1-D vector
+            step_matrix = np.array(X_test[-1][-3:][:, 1])
+            predicted_close = step_matrix.mean()
+            predicted_open = X_test[-1][-1][1]
+            score = ((predicted_close - predicted_open) * 1000)
+            return score
+
+
 
 # sm = StockModel()
 # dict = {}
@@ -770,3 +790,6 @@ class StockModel:
 #         sm.stockDataDict[symbol] = sm.start(symbol, "2005-01-01", "2018-05-27")
 #     except (urllib_err.HTTPError, TypeError):
 #         continue
+
+
+
