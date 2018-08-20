@@ -56,7 +56,7 @@ dict= pd.DataFrame(columns=['date', 'compound', 'neg','neu','pos'])
 neu=[0,0,0,0]
 general=[0,0,0,0]
 compound=[0,0,0,0]
-r = requests.get('https://api.intrinio.com/news?identifier=TEVA', auth=('2e86cf6af95b890307324803e2de1168', '0f3ff2f93c1a33fd3c1002ade5ba10f8')) #access to json text
+r = requests.get('https://api.intrinio.com/news?identifier=TEVA', auth=('2e86cf6af95b890307324803e2de1168', '0f3ff2f93c1a33fd3c1002ade5ba10f8')) #access to news api
 jsontry=r.json() #json format
 print(jsontry)
 fulldate=jsontry["data"][indexjson]["publication_date"]

@@ -257,11 +257,9 @@ class StockModel:
         # Initialize a scaler, then apply it to the features
         scaler = MinMaxScaler()
         numerical = ['Open', 'Close', 'Volume']#,'Positive','Neutral','Negative','Compound'] #SENTIMENT
-        mx = data['Close'].max()
-        mn = data['Close'].min()
         data[numerical] = scaler.fit_transform(data[numerical]) #TODO: UNCOMMENT!!!!!!!!!!!!!!!!KBJFEVDWFVWEFVGIWEVWEFVGR
 
-        return data, mx, mn
+        return data
 
     # In[29]:
     def scale_range(self, x, input_range, target_range):
@@ -326,7 +324,7 @@ class StockModel:
 
     # In[31]:
     # TODO: HOW TO DETERMINE TEST_DATA_SIZE AND UNROLL_LENGTH, PREDICTION_TIME?
-    def train_test_split_lstm(self, stocks, prediction_time=1, test_data_size=160, unroll_length=40):# 80,20
+    def train_test_split_lstm(self, stocks, prediction_time=1, test_data_size=160, unroll_length=40):# TODO: 80,20
         """
             Split the data set into training and testing feature for Long Short Term Memory Model
             :param stocks: whole data set containing ['Open','Close','Volume'] features
@@ -471,7 +469,7 @@ class StockModel:
 
 
     def start(self, symbol, history_start_date, history_end_date, predict_start_date, predict_end_date):
-        #symbol="AAPL" #TODO:COOMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #symbol="GOOG" #TODO:COOMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #TODO: train for every stock combined
         if not os.path.exists('./csv/'+symbol+'.csv'):
             data = self.fetch_stocks_data(symbol, history_start_date, history_end_date)
@@ -501,7 +499,8 @@ class StockModel:
 
         # In[15]:
         #TODO: CHANGE pddf TO SENTIMENT DATAFRAME WE RECEIVED FROM SENTIMENT ANALYSIS
-        pddf = pd.DataFrame(2 * np.random.random_sample(size=(len(data), 1)) -1 , columns=['Compound'])
+        # pddf = pd.DataFrame(2 * np.random.random_sample(size=(len(data), 1)) -1 , columns=['Compound'])
+        pddf = pd.DataFrame([1] *len(data), columns=['Compound'])
         # pddf['Date']= 1
         # pddf['Positive']= 1
         # pddf['Neutral']= 1
@@ -529,7 +528,7 @@ class StockModel:
         # In[23]:
         # Normalize the data
         # In[25]:
-        stocks, mx, mn = self.get_normalised_data_with_sentiment(stocks)
+        stocks= self.get_normalised_data_with_sentiment(stocks)
         # print(stocks.head())
         #
         # print("\n")
@@ -737,17 +736,41 @@ class StockModel:
         # In[159]:
         # Generate predictions
         predictions = model.predict(X_test, batch_size=batch_size)
-        print('ACTUAL: ' + str(stocks))
-        print('PREDICT: ' + str(predictions))
-        df = pd.DataFrame(predictions)
+        # print('ACTUAL: ' + str(stocks))
+        # print('PREDICT: ' + str(predictions))
+        # mx = predictions.max()
+        # print("MX: "+str(mx))
+        # mn = predictions.min()
+
         # mx = df.max()
         # mn = df.min()
-        print(df)
-       # df = df.transform(lambda x: (x * (mx - mn)) + mn)
 
-        df.to_csv("AAPL2.csv")
+        # TODO: UNCOMMENT HALP #
+        # print("PREDICITONS HALP:"+str(predictions))
+        # print("STOCKS HALP:" + str(stocks))
+        #
+        # # df = df.transform(lambda x: (x * (mx - mn)) + mn)
+        # mx = predictions.max()
+        # mn = predictions.min()
+        # df = pd.DataFrame(predictions)
+        # df = df.transform(lambda x: (x * (mx - mn)) + mn)
+        # df.to_csv("AAPL_PREDICTIONS.csv")
+        #
+        # mx = stocks["Open"].max()
+        # mn = stocks["Open"].min()
+        # df = pd.DataFrame(stocks)
+        # df = df.transform(lambda x: (x * (mx - mn)) + mn)
+        #
+        # df.to_csv("AAPL_STOCKS.csv")
+        # TODO: UNCOMMENT HALP #
+        # df = pd.DataFrame(predictions)
+        # df.to_csv("GOOGLE_PREDICTIONS.csv")
+        #
+        # stocks.to_csv("GOOGLE_STOCKS.csv")
+        # TODO: UNCOMMENT HALP #
         #predictions.to_csv('./csv/'+"AAPL2"+'.csv', index=False)
         # In[160]:
+
         #self.plot_lstm_prediction(predictions, y_test) #TODO: UNCOMMENT
 
         # Get test score
@@ -772,13 +795,13 @@ class StockModel:
 
         self.stockDataDict[symbol] = random.randint(0,100)# TODO: REMOVE PLACEHOLDER
 
-        def get_recommendation():
+        # def get_recommendation():
             # grab the last 3 items in the most current frame (last nested loop) and covert closing prices to a 1-D vector
-            step_matrix = np.array(X_test[-1][-3:][:, 1])
-            predicted_close = step_matrix.mean()
-            predicted_open = X_test[-1][-1][1]
-            score = ((predicted_close - predicted_open) * 1000)
-            return score
+        step_matrix = np.array(X_test[-1][-3:][:, 1])
+        predicted_close = step_matrix.mean()
+        predicted_open = X_test[-1][-1][1]
+        score = ((predicted_close - predicted_open) * 1000)
+        return score
 
 
 

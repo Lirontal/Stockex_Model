@@ -13,8 +13,8 @@ class Algorithm:
 
         self.sm = StockModel()
 
-        self.start_date = "2018-05-20"
-        self.end_date = "2018-05-23"
+        self.start_date = "2017-05-20"
+        self.end_date = "2005-05-23"
 
         self.prepareDataOvernight()
         self.lastUpdated = ""
@@ -25,8 +25,8 @@ class Algorithm:
         print("Preparing "+str(len(a))+" stock data entries...")
 
         i = 0 #TODO:CHANGE TO 0
-        chunk_size = 20 #TODO: CHANGE TO 700
-        while i < 5:#i < len(a):
+        chunk_size = 600 #TODO: CHANGE TO 700
+        while i < 2000:#i < len(a):
             entry = self.sdc.getStockInfoForDay(list(a[i:i+chunk_size-1]), datetime.today())#"2017-04-25")#datetime.today().strftime('%Y-%m-%d'))''''list(a[i:i+chunk_size-1])'''
             self.lastUpdated = self.sdc.lastUpdated
             self.preparedCompanyData.update(entry)
@@ -49,7 +49,9 @@ class Algorithm:
         b = int(budget)
         # print(self.preparedCompanyData)
         # pp(self.preparedCompanyData)
-        return {k: df for k, df in self.preparedCompanyData.items() if df.head(1)["open"][0] <= b}
+        d= {k: df for k, df in self.preparedCompanyData.items() if len(df.head(1)["open"]) > 0}
+
+        return {k: df for k, df in d.items() if df.head(1)["open"][0] <= b}
 
     def getAdvSearch(self, budget, company_type, company_name):
         d = self.getEasySearch(budget)
