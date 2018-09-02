@@ -1,3 +1,4 @@
+from urllib import error as urllib_err
 # coding: utf-8
 
 # # Stockex LSTM predictive model
@@ -469,7 +470,7 @@ class StockModel:
 
 
     def start(self, symbol, history_start_date, history_end_date, predict_start_date, predict_end_date):
-        #symbol="GOOG" #TODO:COOMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #symbol="GOOG" #TODO:COOMENT!!!!f!!!!!!!!!!!!!!!!!!!!!!!!
         #TODO: train for every stock combined
         if not os.path.exists('./csv/'+symbol+'.csv'):
             data = self.fetch_stocks_data(symbol, history_start_date, history_end_date)
@@ -805,14 +806,14 @@ class StockModel:
 
 
 
-# sm = StockModel()
-# dict = {}
-# sip = StockInfoProvider()
-# for symbol in sip.getAllStocks():
-#     try:
-#         sm.stockDataDict[symbol] = sm.start(symbol, "2005-01-01", "2018-05-27")
-#     except (urllib_err.HTTPError, TypeError):
-#         continue
+sm = StockModel()
+dict = {}
+sip = StockInfoProvider()
+for symbol in sip.getAllStocks():
+    try:
+        sm.stockDataDict[symbol] = sm.start(symbol, "2005-01-01", "2018-05-27")
+    except (urllib_err.HTTPError, TypeError):
+        continue
 
 
 
